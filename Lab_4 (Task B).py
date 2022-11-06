@@ -102,4 +102,6 @@ if __name__ == '__main__':
     searchInBoggle(board, words)
 
     validWords = searchInBoggle(board, words)
+    
     print(validWords)
+    
