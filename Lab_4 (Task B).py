@@ -1,107 +1,74 @@
-# A class to store a Trie node
-class Trie:
-    # Constructor
-    def __init__(self):
-        self.character = {}
-        self.isLeaf = False  # true when the node is a leaf node
+def iterative_deepening_dfs(start, target):
+    """
+    Implementation of iterative deepening DFS (depth-first search) algorithm to find the shortest path from a start to a target node..
+    Given a start node, this returns the node in the tree below the start node with the target value (or null if it doesn't exist)
+    Runs in O(n), where n is the number of nodes in the tree, or O(b^d), where b is the branching factor and d is the depth.
+    :param start:  the node to start the search from
+    :param target: the value to search for
+    :return: The node containing the target value or null if it doesn't exist.
+    """
+    # Start by doing DFS with a depth of 1, keep doubling depth until we reach the "bottom" of the tree or find the node we're searching for
+    depth = 1
+    print(start)
+    bottom_reached = False  # Variable to keep track if we have reached the bottom of the tree
+    while not bottom_reached:
+        # One of the "end nodes" of the search with this depth has to still have children and set this to False again
+        result, bottom_reached = iterative_deepening_dfs_rec(start, target, 0, depth)
+        if result is not None:
+            # We've found the goal node while doing DFS with this max depth
+            return result
+
+        # We haven't found the goal node, but there are still deeper nodes to search through
+        depth *= 2
+        print("Increasing depth to " + str(depth))
+
+    # Bottom reached is True.
+    # We haven't found the node and there were no more nodes that still have children to explore at a higher depth.
+    return None
 
 
-# Iterative function to insert a string into a Trie
-def insert(root, s):
-    # start from the root node
-    curr = root
+def iterative_deepening_dfs_rec(node, target, current_depth, max_depth):
+    print("Visiting Node " + str(node["value"]))
 
-    for ch in s:
-        # go to the next node (create if the path doesn't exist)
-        curr = curr.character.setdefault(ch, Trie())
+    if node["value"] == target:
+        # We have found the goal node we we're searching for
+        print("Found the node we're looking for!")
+        return node, True
 
-    curr.isLeaf = True
+    if current_depth == max_depth:
+        print("Current maximum depth reached, returning...")
+        # We have reached the end for this depth...
+        if len(node["children"]) > 0:
+            # ...but we have not yet reached the bottom of the tree
+            return None, False
+        else:
+            return None, True
 
+    # Recurse with all children
+    bottom_reached = True
+    for i in range(len(node["children"])):
+        result, bottom_reached_rec = iterative_deepening_dfs_rec(node["children"][i], target, current_depth + 1,
+                                                                 max_depth)
+        if result is not None:
+            # We've found the goal node while going down that child
+            return result, True
+        bottom_reached = bottom_reached and bottom_reached_rec
 
-# Below lists detail all eight possible movements from a cell
-# (top, right, bottom, left, and four diagonal moves)
-row = [-1, -1, -1, 0, 1, 0, 1, 1]
-col = [-1, 1, 0, -1, -1, 1, 0, 1]
+    # We've gone through all children and not found the goal node
+    return None, bottom_reached
 
-
-# The function returns false if (x, y) is not valid matrix coordinates
-# or cell (x, y) is already processed or doesn't lead to the solution
-def isSafe(x, y, processed, board, ch):
-    return (0 <= x < len(processed)) and (0 <= y < len(processed[0])) and \
-           not processed[x][y] and (board[x][y] == ch)
-
-
-# A recursive function to search valid words present in a boggle using trie
-def searchBoggle(root, board, i, j, processed, path, result):
-    # if a leaf node is encountered
-    if root.isLeaf:
-        # update result with the current word
-        result.add(path)
-
-    # mark the current cell as processed
-    processed[i][j] = True
-
-    # traverse all children of the current Trie node
-    for key, value in root.character.items():
-
-        # check for all eight possible movements from the current cell
-        for k in range(len(row)):
-
-            # skip if a cell is invalid, or it is already processed
-            # or doesn't lead to any path in the Trie
-            if isSafe(i + row[k], j + col[k], processed, board, key):
-                searchBoggle(value, board, i + row[k], j + col[k],
-                             processed, path + key, result)
-
-    # backtrack: mark the current cell as unprocessed
-    processed[i][j] = False
+start={"value": 0, "children":[
+   {"value": 1, "children":[
+     {"value": 3, "children":[  ]},
+     {"value": 4, "children":[ ]}
+     ]}, {
+         "value": 2, "children":[
+             {"value": 5, "children":[ ]},
+             {"value": 6, "children":[ ]}
+             ]
+         }
+   ]
+}
 
 
-# Function to search for a given set of words in a boggle
-def searchInBoggle(board, words):
-    # construct a set for storing the result
-    result = set()
-
-    # base case
-    if not board or not len(board):
-        return
-
-    # insert all words into a trie
-    root = Trie()
-    for word in words:
-        insert(root, word)
-
-    # `M × N` board
-    (M, N) = (len(board), len(board[0]))
-
-    # construct a matrix to store whether a cell is processed or not
-    processed = [[False for x in range(N)] for y in range(M)]
-
-    # consider each character in the matrix
-    for i in range(M):
-        for j in range(N):
-            ch = board[i][j]  # current character
-
-            # proceed only if the current character is a child of the Trie root node
-            if ch in root.character:
-                searchBoggle(root.character[ch], board, i, j, processed, ch, result)
-
-    # return the result set
-    return result
-
-
-if __name__ == '__main__':
-    board = [
-        ['M', 'S', 'E', 'F'],
-        ['R', 'A', 'T', 'D'],
-        ['L', 'O', 'N', 'E'],
-        ['K', 'A', 'F', 'B']
-    ]
-
-    words = ['START', 'NOTE', 'SAND', 'STONED']
-    searchInBoggle(board, words)
-
-    validWords = searchInBoggle(board, words)
-    
-    print(validWords)
-    
+print(iterative_deepening_dfs(start, 6) ["value"])
