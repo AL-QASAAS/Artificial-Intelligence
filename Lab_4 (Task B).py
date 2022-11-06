@@ -1,74 +1,320 @@
-def iterative_deepening_dfs(start, target):
-    """
-    Implementation of iterative deepening DFS (depth-first search) algorithm to find the shortest path from a start to a target node..
-    Given a start node, this returns the node in the tree below the start node with the target value (or null if it doesn't exist)
-    Runs in O(n), where n is the number of nodes in the tree, or O(b^d), where b is the branching factor and d is the depth.
-    :param start:  the node to start the search from
-    :param target: the value to search for
-    :return: The node containing the target value or null if it doesn't exist.
-    """
-    # Start by doing DFS with a depth of 1, keep doubling depth until we reach the "bottom" of the tree or find the node we're searching for
-    depth = 1
-    print(start)
-    bottom_reached = False  # Variable to keep track if we have reached the bottom of the tree
-    while not bottom_reached:
-        # One of the "end nodes" of the search with this depth has to still have children and set this to False again
-        result, bottom_reached = iterative_deepening_dfs_rec(start, target, 0, depth)
-        if result is not None:
-            # We've found the goal node while doing DFS with this max depth
-            return result
+# Python program
 
-        # We haven't found the goal node, but there are still deeper nodes to search through
-        depth *= 2
-        print("Increasing depth to " + str(depth))
+# class Player which holds the players position on the screen and speed
 
-    # Bottom reached is True.
-    # We haven't found the node and there were no more nodes that still have children to explore at a higher depth.
-    return None
+# structure and event handling
+
+class Player:
+    x = 10
+
+    y = 10
+
+    speed = 1
+
+    def moveRight(self):
+        self.x = self.x + self.speed
+
+    def moveLeft(self):
+        self.x = self.x - self.speed
+
+    def moveUp(self):
+        self.y = self.y - self.speed
+
+    def moveDown(self):
+        self.y = self.y + self.speed
 
 
-def iterative_deepening_dfs_rec(node, target, current_depth, max_depth):
-    print("Visiting Node " + str(node["value"]))
+# player object can be created and variables can be modified
 
-    if node["value"] == target:
-        # We have found the goal node we we're searching for
-        print("Found the node we're looking for!")
-        return node, True
+# using the movement methods
 
-    if current_depth == max_depth:
-        print("Current maximum depth reached, returning...")
-        # We have reached the end for this depth...
-        if len(node["children"]) > 0:
-            # ...but we have not yet reached the bottom of the tree
-            return None, False
-        else:
-            return None, True
+# link these methods to the events
 
-    # Recurse with all children
-    bottom_reached = True
-    for i in range(len(node["children"])):
-        result, bottom_reached_rec = iterative_deepening_dfs_rec(node["children"][i], target, current_depth + 1,
-                                                                 max_depth)
-        if result is not None:
-            # We've found the goal node while going down that child
-            return result, True
-        bottom_reached = bottom_reached and bottom_reached_rec
-
-    # We've gone through all children and not found the goal node
-    return None, bottom_reached
-
-start={"value": 0, "children":[
-   {"value": 1, "children":[
-     {"value": 3, "children":[  ]},
-     {"value": 4, "children":[ ]}
-     ]}, {
-         "value": 2, "children":[
-             {"value": 5, "children":[ ]},
-             {"value": 6, "children":[ ]}
-             ]
-         }
-   ]
-}
+pygame.event.pump()
+keys = pygame.key.get_pressed()
+if (keys[K_RIGHT]):
+    print("Right arrow pressed.")
+from pygame.locals import *
+import pygame
 
 
-print(iterative_deepening_dfs(start, 6) ["value"])
+class Player:
+    x = 10
+    y = 10
+    speed = 1
+
+    def moveRight(self):
+        self.x = self.x + self.speed
+
+    def moveLeft(self):
+        self.x = self.x - self.speed
+
+    def moveUp(self):
+        self.y = self.y - self.speed
+
+    def moveDown(self):
+        self.y = self.y + self.speed
+
+
+class App:
+    windowWidth = 800
+    windowHeight = 600
+    player = 0
+
+    def __init__(self):
+        self._running = True
+        self._display_surf = None
+        self._image_surf = None
+        self.player = Player()
+
+    def on_init(self):
+        pygame.init()
+        self._display_surf = pygame.display.set_mode((self.windowWidth, self.windowHeight), pygame.HWSURFACE)
+        pygame.display.set_caption('Pygame example')
+        self._running = True
+        self._image_surf = pygame.image.load("pygame.png").convert()
+
+    def on_event(self, event):
+        if event.type == QUIT:
+            self._running = False
+
+    def on_loop(self):
+        pass
+
+    def on_render(self):
+        self._display_surf.fill((0, 0, 0))
+        self._display_surf.blit(self._image_surf, (self.player.x, self.player.y))
+        pygame.display.flip()
+
+    def on_cleanup(self):
+        pygame.quit()
+
+    def on_execute(self):
+        if self.on_init() == False:
+            self._running = False
+        while (self._running):
+            pygame.event.pump()
+            keys = pygame.key.get_pressed()
+            if (keys[K_RIGHT]):
+                self.player.moveRight()
+            if (keys[K_LEFT]):
+                self.player.moveLeft()
+            if (keys[K_UP]):
+                self.player.moveUp()
+            if (keys[K_DOWN]):
+                self.player.moveDown()
+            if (keys[K_ESCAPE]):
+                self._running = False
+            self.on_loop()
+            self.on_render()
+        self.on_cleanup()
+
+
+if __name__ == "__main__":
+    theApp = App()
+    theApp.on_execute()
+
+
+# Now to create the maze
+
+# use your own player and Block PNG image
+
+# define a matrix of NxM to represent the positions of the maze blocks.
+
+# In this matrix the element 1 represents the presence of a block and element 0 represents the absence.
+
+class Maze:
+
+    def __init__(self):
+        self.M = 10
+
+        self.N = 8
+
+        self.maze = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+
+                     1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+
+                     1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+
+                     1, 0, 1, 1, 1, 1, 1, 1, 0, 1,
+
+                     1, 0, 1, 0, 0, 0, 0, 0, 0, 1,
+
+                     1, 0, 1, 0, 1, 1, 1, 1, 0, 1,
+
+                     1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+
+                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ]
+
+
+complete
+code
+to
+draw
+the
+maze:
+
+from pygame.locals import *
+
+import pygame
+
+
+class Player:
+    x = 44
+
+    y = 44
+
+    speed = 1
+
+    def moveRight(self):
+        self.x = self.x + self.speed
+
+    def moveLeft(self):
+        self.x = self.x - self.speed
+
+    def moveUp(self):
+        self.y = self.y - self.speed
+
+    def moveDown(self):
+        self.y = self.y + self.speed
+
+
+class Maze:
+
+    def __init__(self):
+
+        self.M = 10
+
+        self.N = 8
+
+        self.maze = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+
+                     1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+
+                     1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+
+                     1, 0, 1, 1, 1, 1, 1, 1, 0, 1,
+
+                     1, 0, 1, 0, 0, 0, 0, 0, 0, 1,
+
+                     1, 0, 1, 0, 1, 1, 1, 1, 0, 1,
+
+                     1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+
+                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ]
+
+    def draw(self, display_surf, image_surf):
+
+        bx = 0
+
+        by = 0
+
+        for i in range(0, self.M * self.N):
+
+            if self.maze[bx + (by * self.M)] == 1:
+                display_surf.blit(image_surf, (bx * 44, by * 44))
+
+            bx = bx + 1
+
+            if bx > self.M - 1:
+                bx = 0
+
+                by = by + 1
+
+
+class App:
+    windowWidth = 800
+
+
+windowHeight = 600
+
+player = 0
+
+
+def __init__(self):
+    self._running = True
+
+    self._display_surf = None
+
+    self._image_surf = None
+
+    self._block_surf = None
+
+    self.player = Player()
+
+    self.maze = Maze()
+
+
+def on_init(self):
+    pygame.init()
+
+    self._display_surf = pygame.display.set_mode((self.windowWidth, self.windowHeight), pygame.HWSURFACE)
+
+    pygame.display.set_caption('Pygame example')
+
+    self._running = True
+
+    self._image_surf = pygame.image.load("player.png").convert()
+
+    self._block_surf = pygame.image.load("block.png").convert()
+
+
+def on_event(self, event):
+    if event.type == QUIT:
+        self._running = False
+
+
+def on_loop(self):
+    pass
+
+
+def on_render(self):
+    self._display_surf.fill((0, 0, 0))
+
+    self._display_surf.blit(self._image_surf, (self.player.x, self.player.y))
+
+    self.maze.draw(self._display_surf, self._block_surf)
+
+    pygame.display.flip()
+
+
+def on_cleanup(self):
+    pygame.quit()
+
+
+def on_execute(self):
+    if self.on_init() == False:
+        self._running = False
+
+    while (self._running):
+
+        pygame.event.pump()
+
+        keys = pygame.key.get_pressed()
+
+        if (keys[K_RIGHT]):
+            self.player.moveRight()
+
+        if (keys[K_LEFT]):
+            self.player.moveLeft()
+
+        if (keys[K_UP]):
+            self.player.moveUp()
+
+        if (keys[K_DOWN]):
+            self.player.moveDown()
+
+        if (keys[K_ESCAPE]):
+            self._running = False
+
+        self.on_loop()
+
+        self.on_render()
+
+    self.on_cleanup()
+
+
+if __name__ == "__main__":
+    theApp = App()
+
+    theApp.on_execute()
